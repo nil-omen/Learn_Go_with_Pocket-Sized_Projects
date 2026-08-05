@@ -9,7 +9,7 @@ func main() {
 	var lang string
 	flag.StringVar(&lang,
 		"lang",
-		"fr",
+		"en",
 		"The required language, e.g. en, ur, ar ...")
 	flag.Parse()
 
