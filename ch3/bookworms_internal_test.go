@@ -48,7 +48,7 @@ func TestLoadBookworms_Success(t *testing.T) {
 				t.Fatalf("expected an error %s, got none", err.Error())
 			}
 			if err == nil && tc.wantErr {
-				t.Fatalf("expected no error, got one %s", err.Error())
+				t.Fatalf("expected no error, got one %s", err)
 			}
 			if !equalBookworms(t, got, tc.want) {
 				t.Fatalf("different result: got %v, expected %v", got, tc.want)
