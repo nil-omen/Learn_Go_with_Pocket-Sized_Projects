@@ -52,3 +52,10 @@ func (l *Logger) logf(lvl Level, format string, args ...any) {
 	message := fmt.Sprintf(format, args...)
 	_, _ = fmt.Fprintf(l.output, "%s %s\n", lvl, message)
 }
+
+func (l *Logger) Logf(lvl Level, format string, args ...any) {
+	if l.threshold > lvl {
+		return
+	}
+	l.logf(lvl, format, args...)
+}

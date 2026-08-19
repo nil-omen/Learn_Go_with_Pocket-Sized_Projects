@@ -8,7 +8,7 @@ import (
 func ExampleLogger_Debugf() {
 	debugLogger := pocketlog.New(pocketlog.LevelDebug)
 	debugLogger.Debugf("Hello, %s", "world")
-	// Output: Hello, world
+	// Output: [DEBUG] Hello, world
 }
 
 // testWriter is a struct that implements io.Writer.
@@ -38,15 +38,15 @@ func TestLogger_DebugfInfofErrorf(t *testing.T) {
 	tt := map[string]testCase{
 		"debug": {
 			level:    pocketlog.LevelDebug,
-			expected: debugMessage + "\n" + infoMessage + "\n" + errorMessage + "\n",
+			expected: "[DEBUG] Why write I still all one, ever the same,\n[INFO] And keep invention in a noted weed,\n[ERROR] That every word doth almost tell my name,\n",
 		},
 		"info": {
 			level:    pocketlog.LevelInfo,
-			expected: infoMessage + "\n" + errorMessage + "\n",
+			expected: "[INFO] And keep invention in a noted weed,\n[ERROR] That every word doth almost tell my name,\n",
 		},
 		"error": {
 			level:    pocketlog.LevelError,
-			expected: errorMessage + "\n",
+			expected: "[ERROR] That every word doth almost tell my name,\n",
 		},
 	}
 
@@ -58,7 +58,8 @@ func TestLogger_DebugfInfofErrorf(t *testing.T) {
 
 			testedLogger.Debugf(debugMessage)
 			testedLogger.Infof(infoMessage)
-			testedLogger.Errorf(errorMessage)
+			// testedLogger.Errorf(errorMessage)
+			testedLogger.Logf(pocketlog.LevelError, errorMessage)
 
 			if tw.contents != tc.expected {
 				t.Errorf("invalid contents, expected %q, got %q", tc.expected, tw.contents)
