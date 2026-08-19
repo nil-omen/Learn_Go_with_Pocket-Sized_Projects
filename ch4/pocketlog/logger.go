@@ -9,6 +9,7 @@ import (
 type Logger struct {
 	threshold Level
 	output    io.Writer
+	maxLength uint
 }
 
 // Debugf formats and prints a message if the log level is debug or higher.
@@ -38,8 +39,13 @@ func (l *Logger) Errorf(format string, args ...any) {
 // New returns you a logger, ready to log at the required threshold.
 // Give it a list of configuration functions to tune it at your will.
 // The default output is Stdout.
+// There is no default maximum length - messages aren't trimmed.
 func New(threshold Level, opts ...Option) *Logger {
-	lgr := &Logger{threshold: threshold, output: os.Stdout}
+	lgr := &Logger{
+		threshold: threshold,
+		output:    os.Stdout,
+		maxLength: 0,
+	}
 
 	for _, configFunc := range opts {
 		configFunc(lgr)
@@ -50,9 +56,14 @@ func New(threshold Level, opts ...Option) *Logger {
 // logf prints the message to the output. // Add decorations here, if any. #1
 func (l *Logger) logf(lvl Level, format string, args ...any) {
 	message := fmt.Sprintf(format, args...)
+
+	if l.maxLength != 0 && uint(len([]rune(message))) > l.maxLength {
+		message = string([]rune(message)[:l.maxLength]) + "[TRIMMED]"
+	}
 	_, _ = fmt.Fprintf(l.output, "%s %s\n", lvl, message)
 }
 
+// Logf formats and prints a message if the log level is high enough.
 func (l *Logger) Logf(lvl Level, format string, args ...any) {
 	if l.threshold > lvl {
 		return
