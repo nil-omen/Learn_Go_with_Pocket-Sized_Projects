@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	lgr := pocketlog.New(pocketlog.LevelInfo, pocketlog.WithOutput(os.Stdout))
+	lgr := pocketlog.New(pocketlog.LevelDebug, pocketlog.WithOutput(os.Stdout), pocketlog.WithJSONFormat(true))
 
 	lgr.Debugf("Debugging My Way In Life")
 	lgr.Infof("Looking For Some Information")

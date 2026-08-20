@@ -18,3 +18,9 @@ func WithMaxLength(maxLength uint) Option {
 		lgr.maxLength = maxLength
 	}
 }
+
+func WithJSONFormat(withJSON bool) Option {
+	return func(lgr *Logger) {
+		lgr.formattedJSON = withJSON
+	}
+}

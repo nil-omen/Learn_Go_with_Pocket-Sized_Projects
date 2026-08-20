@@ -67,3 +67,46 @@ func TestLogger_DebugfInfofErrorf(t *testing.T) {
 		})
 	}
 }
+
+func TestLogger_JSON(t *testing.T) {
+	type testCase struct {
+		level pocketlog.Level
+		expected string
+	}
+
+	tt := map[string]testCase {
+		"debug": {
+			level: pocketlog.LevelDebug,
+			expected: `{"level":"[DEBUG]","message":"` + debugMessage + "\"}\n" +
+				`{"level":"[INFO]","message":"` + infoMessage + "\"}\n" +
+				`{"level":"[ERROR]","message":"` + errorMessage + "\"}\n",
+		},
+		"info": {
+			level: pocketlog.LevelInfo,
+			expected: `{"level":"[INFO]","message":"` + infoMessage + "\"}\n" +
+				`{"level":"[ERROR]","message":"` + errorMessage + "\"}\n",
+		},
+		"error": {
+			level:    pocketlog.LevelError,
+			expected: `{"level":"[ERROR]","message":"` + errorMessage + "\"}\n",
+		},
+	}
+
+	for name, tc := range tt {
+		t.Run(name, func(t *testing.T) {
+			tw := &testWriter{}
+
+			testedLogger := pocketlog.New(tc.level, pocketlog.WithOutput(tw), pocketlog.WithJSONFormat(true))
+
+			testedLogger.Debugf(debugMessage)
+			testedLogger.Infof(infoMessage)
+			// testedLogger.Errorf(errorMessage)
+			testedLogger.Logf(pocketlog.LevelError, errorMessage)
+
+			if tw.contents != tc.expected {
+				t.Errorf("invalid contents, expected %q, got %q", tc.expected, tw.contents)
+			}
+
+		})
+	}
+}

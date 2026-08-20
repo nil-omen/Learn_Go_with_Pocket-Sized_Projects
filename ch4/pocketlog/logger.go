@@ -1,6 +1,7 @@
 package pocketlog
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -10,6 +11,12 @@ type Logger struct {
 	threshold Level
 	output    io.Writer
 	maxLength uint
+	formattedJSON bool
+}
+
+type messageJSON struct {
+	Level string `json:"level"`
+	Message string `json:"message"`
 }
 
 // Debugf formats and prints a message if the log level is debug or higher.
@@ -45,6 +52,7 @@ func New(threshold Level, opts ...Option) *Logger {
 		threshold: threshold,
 		output:    os.Stdout,
 		maxLength: 0,
+		formattedJSON: false,
 	}
 
 	for _, configFunc := range opts {
@@ -59,6 +67,22 @@ func (l *Logger) logf(lvl Level, format string, args ...any) {
 
 	if l.maxLength != 0 && uint(len([]rune(message))) > l.maxLength {
 		message = string([]rune(message)[:l.maxLength]) + "[TRIMMED]"
+	}
+
+	if l.formattedJSON {
+		msg := messageJSON {
+			Level: lvl.String(),
+			Message: message,
+		}
+
+		formattedMessage, err := json.Marshal(msg)
+		if err != nil {			
+		_, _ = fmt.Fprintf(l.output, "couldn't format message for %v\n", message)
+		return
+		}
+
+		_, _ = fmt.Fprintln(l.output, string(formattedMessage))
+		return
 	}
 	_, _ = fmt.Fprintf(l.output, "%s %s\n", lvl, message)
 }
