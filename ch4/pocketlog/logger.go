@@ -8,14 +8,14 @@ import (
 )
 
 type Logger struct {
-	threshold Level
-	output    io.Writer
-	maxLength uint
+	threshold     Level
+	output        io.Writer
+	maxLength     uint
 	formattedJSON bool
 }
 
 type messageJSON struct {
-	Level string `json:"level"`
+	Level   string `json:"level"`
 	Message string `json:"message"`
 }
 
@@ -49,9 +49,9 @@ func (l *Logger) Errorf(format string, args ...any) {
 // There is no default maximum length - messages aren't trimmed.
 func New(threshold Level, opts ...Option) *Logger {
 	lgr := &Logger{
-		threshold: threshold,
-		output:    os.Stdout,
-		maxLength: 0,
+		threshold:     threshold,
+		output:        os.Stdout,
+		maxLength:     0,
 		formattedJSON: false,
 	}
 
@@ -70,15 +70,15 @@ func (l *Logger) logf(lvl Level, format string, args ...any) {
 	}
 
 	if l.formattedJSON {
-		msg := messageJSON {
-			Level: lvl.String(),
+		msg := messageJSON{
+			Level:   lvl.String(),
 			Message: message,
 		}
 
 		formattedMessage, err := json.Marshal(msg)
-		if err != nil {			
-		_, _ = fmt.Fprintf(l.output, "couldn't format message for %v\n", message)
-		return
+		if err != nil {
+			_, _ = fmt.Fprintf(l.output, "couldn't format message for %v\n", message)
+			return
 		}
 
 		_, _ = fmt.Fprintln(l.output, string(formattedMessage))

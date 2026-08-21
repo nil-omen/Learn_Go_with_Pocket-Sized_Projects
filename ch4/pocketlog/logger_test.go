@@ -70,11 +70,11 @@ func TestLogger_DebugfInfofErrorf(t *testing.T) {
 
 func TestLogger_JSON(t *testing.T) {
 	type testCase struct {
-		level pocketlog.Level
+		level    pocketlog.Level
 		expected string
 	}
 
-	tt := map[string]testCase {
+	tt := map[string]testCase{
 		"debug": {
 			level: pocketlog.LevelDebug,
 			expected: `{"level":"[DEBUG]","message":"` + debugMessage + "\"}\n" +
