@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 const solutionLength = 5
+
+// errInvalidWordLength is returned when the guess has the wrong number of characters.
+var errInvalidWordLength = fmt.Errorf("invalid guess, word doesn't have the same number of characters as the solution")
 
 // Game holds all the information we need to play a game of gordle.
 type Game struct {
@@ -43,14 +47,28 @@ func (g *Game) ask() []rune {
 			continue
 		}
 
-		guess := []rune(string(playerInput))
+		guess := splitToUppercaseCharacters(string(playerInput))
 
 		// Verifying the guess length
-		if len(guess) != solutionLength {
-			_, _ = fmt.Fprintf(os.Stderr, "Your attempt is invalid with Gordle's solution! Expected %d characters, got %d.\n", solutionLength, len(guess))
-
+		err = g.validateGuess(guess)
+		if err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "Your attempt is invalid with Gordle's solution: %s.\n", err.Error())
 		} else {
 			return guess
 		}
 	}
+}
+
+// validateGuess ensures the guess is valid enough.
+func (g *Game) validateGuess(guess []rune) error {
+	if len(guess) != solutionLength {
+		return fmt.Errorf("expected %d, got %d, %w", solutionLength, len(guess), errInvalidWordLength)
+	}
+
+	return nil
+}
+
+// splitToUppercaseCharacters is a naive implementation to turn a string into a list of characters.
+func splitToUppercaseCharacters(input string) []rune {
+	return []rune(strings.ToUpper(input))
 }

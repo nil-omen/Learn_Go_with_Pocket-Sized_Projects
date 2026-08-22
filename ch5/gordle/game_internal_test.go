@@ -1,6 +1,7 @@
 package gordle
 
 import (
+	"errors"
 	"slices"
 	"strings"
 	"testing"
@@ -36,6 +37,67 @@ func TestGameAsk(t *testing.T) {
 			got := g.ask()
 			if !slices.Equal(got, tc.want) {
 				t.Errorf("got = %v, want %v", string(got), string(tc.want))
+			}
+		})
+	}
+}
+
+func TestGameValidateGuess(t *testing.T) {
+	tt := map[string]struct {
+		word     []rune
+		expected error
+	}{
+		"nominal": {
+			word:     []rune("GUESS"),
+			expected: nil,
+		},
+		"too long": {
+			word:     []rune("POCKET"),
+			expected: errInvalidWordLength,
+		},
+		"too short": {
+			word:     []rune("TINY"),
+			expected: errInvalidWordLength,
+		},
+		"empty": {
+			word:     []rune(""),
+			expected: errInvalidWordLength,
+		},
+		"nil": {
+			word:     nil,
+			expected: errInvalidWordLength,
+		},
+	}
+
+	for name, tc := range tt {
+		t.Run(name, func(t *testing.T) {
+			g := New(nil)
+
+			err := g.validateGuess(tc.word)
+			if !errors.Is(err, tc.expected) {
+				t.Errorf("%c ,expected %q, got %q", tc.word, tc.expected, err)
+			}
+		})
+	}
+}
+
+func TestSplitToUppercaseCharacters(t *testing.T) {
+	tt := map[string]struct {
+		input string
+		want  []rune
+	}{
+		"lowercase": {
+			input: "hello",
+			want:  []rune("HELLO"),
+		},
+	}
+
+	for name, tc := range tt {
+		t.Run(name, func(t *testing.T) {
+			got := splitToUppercaseCharacters(tc.input)
+
+			if !slices.Equal(tc.want, got) {
+				t.Errorf("expected %v, got %v", tc.want, got)
 			}
 		})
 	}
