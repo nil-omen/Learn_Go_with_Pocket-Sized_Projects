@@ -26,7 +26,11 @@ func New(playerInput io.Reader) *Game {
 // Play runs the game.
 func (g *Game) Play() {
 	fmt.Println("Welcome to Gordle!")
-	fmt.Printf("Enter a guess:\n")
+
+	guess := g.ask()
+
+	fmt.Printf("Your guess is: %s\n", string(guess))
+
 }
 
 // ask reads input until a valid suggestion is made (and returned).
@@ -40,5 +44,13 @@ func (g *Game) ask() []rune {
 		}
 
 		guess := []rune(string(playerInput))
+
+		// Verifying the guess length
+		if len(guess) != solutionLength {
+			_, _ = fmt.Fprintf(os.Stderr, "Your attempt is invalid with Gordle's solution! Expected %d characters, got %d.\n", solutionLength, len(guess))
+
+		} else {
+			return guess
+		}
 	}
 }
