@@ -37,6 +37,11 @@ func (g *Game) Play() {
 	// break condition: we've reached the maximum number of attempts
 	for currentAttempt := 1; currentAttempt <= g.maxAttempts; currentAttempt++ {
 		guess := g.ask()
+
+		fb := computeFeedback(guess, g.solution)
+
+		fmt.Println(fb.String())
+
 		if slices.Equal(guess, g.solution) {
 			fmt.Printf("🎉 You won! You found it in %d guess(es)! The word was: %s.\n", currentAttempt, string(g.solution))
 			return
@@ -81,4 +86,48 @@ func (g *Game) validateGuess(guess []rune) error {
 // splitToUppercaseCharacters is a naive implementation to turn a string into a list of characters.
 func splitToUppercaseCharacters(input string) []rune {
 	return []rune(strings.ToUpper(input))
+}
+
+// computeFeedback verifies every character of the guess against the solution.
+func computeFeedback(guess, solution []rune) feedback {
+	result := make(feedback, len(guess))
+	used := make([]bool, len(solution))
+
+	if len(guess) != len(solution) {
+		_, _ = fmt.Fprintf(os.Stderr, "Internal error! Guess and solution have different lengths: %d vs %d", len(guess), len(solution))
+		return result
+	}
+
+	// check for correct letters
+	for posInGuess, character := range guess {
+		if character == solution[posInGuess] {
+			result[posInGuess] = correctPosition
+			used[posInGuess] = true
+		}
+	}
+
+	// look for letters in wrong position
+	for posInGuess, character := range guess {
+		if result[posInGuess] != absentCharacter {
+			// The character has already been marked, ignore it.
+			continue
+		}
+
+		for posInSolution, target := range solution {
+			if used[posInSolution] {
+				// The letter of the solution is already assigned to a letter of the guess.
+				// Skip to the next letter of the solution.
+				continue
+			}
+
+			if character == target {
+				result[posInGuess] = wrongPosition
+				used[posInSolution] = true // Skip to the next letter of the guess.
+				break
+
+			}
+		}
+	}
+
+	return result
 }
